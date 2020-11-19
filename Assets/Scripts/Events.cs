@@ -10,7 +10,7 @@ namespace Events{
         string path = Directory.GetCurrentDirectory();
 
 		using (System.IO.StreamWriter file =
-            new System.IO.StreamWriter(path+@"\Assets\Scripts\Log.csv", true))
+            new System.IO.StreamWriter(path+@"\Logs\Log.csv", true))
         {
             file.WriteLine(text);
         }

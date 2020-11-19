@@ -9,26 +9,27 @@ public class PlayerBehaviour : MonoBehaviour
     public int jumpingForce;
     public Rigidbody2D rb;
     public SpriteRenderer spriteRenderer;
-    public GameObject destroyedPrefab;
+    public GameObject destroyedPrefab, restartMenu;
     public string currentColor;
 
+    public int wrongColor = 0;
     private static string currentTime;
+    private static bool gameOver = false;
     private static bool first = false;
-    private static int restarts = 0;
     private int points = 0;
     Log Log = new Log();
 
     void Start()
     {
+
+        gameOver = false;
+
+        Time.timeScale = 1.0f;
         if(!first){
             first = true;
             Log.Write("EVENT", "VALUE", "TIME");
             currentTime = Time.time.ToString("f5");
-            Log.Write("Start", restarts.ToString(), currentTime);
-        }else{
-            currentTime = Time.time.ToString("f5");
-            restarts++;
-            Log.Write("Restart", restarts.ToString(), currentTime);
+            Log.Write("Start", "0", currentTime);
         }
      
 
@@ -39,7 +40,7 @@ public class PlayerBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0) && !gameOver)
         {
             currentTime = Time.time.ToString("f5");
             Log.Write("cmd", "tap", currentTime);
@@ -49,7 +50,7 @@ public class PlayerBehaviour : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.tag == "PowerUp")
+        if (other.gameObject.tag == "PowerUp" && !gameOver)
         {
             currentColor = setColor(other.GetComponent<PowerUpBehaviour>().colorIndex);
             currentTime = Time.time.ToString("f5");
@@ -60,7 +61,6 @@ public class PlayerBehaviour : MonoBehaviour
         {
             if (other.gameObject.tag != currentColor)
             {
-               /*  Debug.Log("PlayerBehaviour - Collider != currentColor"); */
                 StartCoroutine(cameraJig());
                 spriteRenderer.enabled = false;
             }else{
@@ -73,19 +73,22 @@ public class PlayerBehaviour : MonoBehaviour
 
     IEnumerator cameraJig()
     {
-        /* Debug.Log("PlayerBehaviour - camerJig()"); */
-        currentTime = Time.time.ToString("f5");
-        Log.Write("WC", restarts.ToString(), currentTime);
+        if(!gameOver){
+            currentTime = Time.time.ToString("f5");
+            wrongColor++;
+            Log.Write("WC", wrongColor.ToString(), currentTime);
+            gameOver = true;
+        }
+        
 
         Camera.main.GetComponent<Animation>().Play();
         yield return new WaitForSeconds(.8f);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Time.timeScale = 0f;
+        restartMenu.SetActive(true);
     }
 
     string setColor(int index)
     {
-
-        /* Debug.Log("PlayerBehaviour - setColor()"); */
 
         switch (index)
         {
@@ -97,11 +100,9 @@ public class PlayerBehaviour : MonoBehaviour
                 return "yellow";
             case 2:
                 spriteRenderer.color = new Color(0.5f, 0, 1, 1);
-                Debug.Log("purple");
                 return "purple";
             case 3:
                 spriteRenderer.color = new Color(1, 0.1f, 0.5f, 1);
-                Debug.Log("pink");
                 return "pink";
         }
 
