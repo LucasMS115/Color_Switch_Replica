@@ -30,12 +30,14 @@ public class CameraBehaviour : MonoBehaviour
             transform.position = new Vector3(0, player.position.y, transform.position.z);
         if(player.transform.position.y + transform.position.y < -7 && !falling)
         {
+            /* AQUI */
             falls++;
             currentTime = Time.time.ToString("f5");
             Log.Write("Fall", falls.ToString(), currentTime);
             falling = true;
             Time.timeScale = 0f;
             restartMenu.SetActive(true);
+            /* AQUI */
         }
 
         if(Mathf.Abs(transform.position.y - spawnPosition.y ) < 6)

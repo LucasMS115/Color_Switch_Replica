@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 using Events;
 
@@ -11,6 +12,10 @@ public class PlayerBehaviour : MonoBehaviour
     public SpriteRenderer spriteRenderer;
     public GameObject destroyedPrefab, restartMenu;
     public string currentColor;
+    private float runTimeCounter = 0;
+    
+    public Text score;
+    public Text runTime;
 
     public int wrongColor = 0;
     private static string currentTime;
@@ -23,6 +28,7 @@ public class PlayerBehaviour : MonoBehaviour
     {
 
         gameOver = false;
+        score.text = "Score: " + 0;
 
         Time.timeScale = 1.0f;
         if(!first){
@@ -40,6 +46,12 @@ public class PlayerBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        score.text = "Score: " + points;
+        score.color = spriteRenderer.color;
+
+        runTimeCounter += Time.deltaTime;
+        runTime.text = "  Time: " + runTimeCounter.ToString("f1");
+
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0) && !gameOver)
         {
             currentTime = Time.time.ToString("f5");
@@ -52,6 +64,7 @@ public class PlayerBehaviour : MonoBehaviour
     {
         if (other.gameObject.tag == "PowerUp" && !gameOver)
         {
+            points+=2;
             currentColor = setColor(other.GetComponent<PowerUpBehaviour>().colorIndex);
             currentTime = Time.time.ToString("f5");
             Log.Write("PU", currentColor, currentTime);
@@ -77,14 +90,15 @@ public class PlayerBehaviour : MonoBehaviour
             currentTime = Time.time.ToString("f5");
             wrongColor++;
             Log.Write("WC", wrongColor.ToString(), currentTime);
+            Log.Write("RT", runTimeCounter.ToString(), Time.time.ToString("f5"));
             gameOver = true;
         }
         
 
         Camera.main.GetComponent<Animation>().Play();
         yield return new WaitForSeconds(.8f);
-        Time.timeScale = 0f;
         restartMenu.SetActive(true);
+        Time.timeScale = 0f;
     }
 
     string setColor(int index)
