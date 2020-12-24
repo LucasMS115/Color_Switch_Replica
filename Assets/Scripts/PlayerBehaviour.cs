@@ -2,9 +2,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
-using Events;
-
 public class PlayerBehaviour : MonoBehaviour
 {
     public int jumpingForce;
@@ -22,20 +19,28 @@ public class PlayerBehaviour : MonoBehaviour
     private static bool gameOver = false;
     private static bool first = false;
     private int points = 0;
-    Log Log = new Log();
+
+    public Log Log;
+    public Atividade Atividade;
+
 
     void Start()
     {
+        Log = GetComponent<Log>();
+        Atividade = GetComponent<Atividade>();
 
         gameOver = false;
         score.text = "Score: " + 0;
 
         Time.timeScale = 1.0f;
         if(!first){
+
+            Atividade.criarAtividade();
+
             first = true;
-            Log.Write("EVENT", "VALUE", "TIME");
-            currentTime = Time.time.ToString("f5");
-            Log.Write("Start", "0", currentTime);
+
+            // *LOG*
+            Log.addLog("Start", "0", "Jogada");
         }
      
 
@@ -54,8 +59,7 @@ public class PlayerBehaviour : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0) && !gameOver)
         {
-            currentTime = Time.time.ToString("f5");
-            Log.Write("cmd", "tap", currentTime);
+            Log.addLog("cmd", "tap", "Interacao");
             rb.velocity = Vector2.up * jumpingForce;
         }
     }
@@ -66,8 +70,10 @@ public class PlayerBehaviour : MonoBehaviour
         {
             points+=2;
             currentColor = setColor(other.GetComponent<PowerUpBehaviour>().colorIndex);
-            currentTime = Time.time.ToString("f5");
-            Log.Write("PU", currentColor, currentTime);
+            
+            // *LOG*
+            Log.addLog("PU", points.ToString(), "Pontuacao");
+
             Destroy(other.gameObject);
         }
         else
@@ -78,8 +84,9 @@ public class PlayerBehaviour : MonoBehaviour
                 spriteRenderer.enabled = false;
             }else{
                 points++;
-                currentTime = Time.time.ToString("f5");
-                Log.Write("RC", points.ToString(), currentTime);
+
+                // *LOG*
+                Log.addLog("RC", points.ToString(), "Pontuacao");
             }
         }
     }
@@ -89,11 +96,13 @@ public class PlayerBehaviour : MonoBehaviour
         if(!gameOver){
             currentTime = Time.time.ToString("f5");
             wrongColor++;
-            Log.Write("WC", wrongColor.ToString(), currentTime);
-            Log.Write("RT", runTimeCounter.ToString(), Time.time.ToString("f5"));
+
+            // *LOG*
+            Log.addLog("GO", "WC", "Jogada");
+            Log.addLog("RT", runTimeCounter.ToString(), "Jogada");
+
             gameOver = true;
         }
-        
 
         Camera.main.GetComponent<Animation>().Play();
         yield return new WaitForSeconds(.8f);

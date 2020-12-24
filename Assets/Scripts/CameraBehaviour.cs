@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-using Events;
-
 public class CameraBehaviour : MonoBehaviour
 {
     public Transform player;
@@ -16,10 +14,16 @@ public class CameraBehaviour : MonoBehaviour
     private static string currentTime;
     private static bool falling = false; 
     private static int falls = 0;
-    Log Log = new Log();
+
+    public GameObject Player;
+    public Log Log;
+    public Atividade Atividade;
 
     void Start()
     {
+        Log = Player.GetComponent<Log>();
+        Atividade = Player.GetComponent<Atividade>();
+        
        falling = false;
     }
 
@@ -30,14 +34,16 @@ public class CameraBehaviour : MonoBehaviour
             transform.position = new Vector3(0, player.position.y, transform.position.z);
         if(player.transform.position.y + transform.position.y < -7 && !falling)
         {
-            /* AQUI */
+
             falls++;
-            currentTime = Time.time.ToString("f5");
-            Log.Write("Fall", falls.ToString(), currentTime);
+
+            // *LOG*
+            Log.addLog("GO", "Fall", "Jogada");
+            
             falling = true;
             Time.timeScale = 0f;
             restartMenu.SetActive(true);
-            /* AQUI */
+
         }
 
         if(Mathf.Abs(transform.position.y - spawnPosition.y ) < 6)
